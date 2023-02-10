@@ -1,0 +1,11 @@
+name: hmm_explorer
+title: HMM_Explorer
+username:
+account: lukeozsanlav
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8279352
+bundleId: 6832523
+url: https://lukeozsanlav.shinyapps.io/hmm_explorer/
+when: 1676041360.92393
+lastSyncTime: 1676041360.92394
