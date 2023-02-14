@@ -19,6 +19,9 @@ The app intended to allow users to explore the fitting of hidden markov models t
   * Interactive map of decoded state
   * Step length and turning angle distributions by state
   * Model checks
+  
+### Data Credit
+The data used in the app is from 2 savanna elephants *Loxodonta africana* and can be found at the following Movebank Data Repository (https://www.doi.org/10.5441/001/1.403h24q5). The citation for this data is Thaker M, Gupte PR, Prins HHT, Slotow R, Vanak AT. 2019. Fine-scale tracking of ambient temperature and movement reveals shuttling behavior of elephants to water. Front Ecol Evol. 7:4. (https://doi.org/10.3389/fevo.2019.00004)
 
 ### Contact 📧
 To suggest changes or bugs in the app then either create a pull request or email me at lo288@exeter.ac.uk
