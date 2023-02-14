@@ -5,7 +5,7 @@ account: lukeozsanlav
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8279352
-bundleId: 6832523
+bundleId: 6846247
 url: https://lukeozsanlav.shinyapps.io/hmm_explorer/
-when: 1676041360.92393
-lastSyncTime: 1676041360.92394
+when: 1676398370.04331
+lastSyncTime: 1676398370.04334
