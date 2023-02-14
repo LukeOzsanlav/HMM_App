@@ -40,7 +40,8 @@ source("functions/HMM functions.R")
 
 
 ## read in data to check that code works without running the app
-# data = read.csv("Biology of birds practical (1).csv")
+testtracks = read.csv("testdata/Two_elephants.csv")
+# testtracks = read.csv("app/testdata/Two_elephants.csv")
 
 
 
@@ -65,26 +66,10 @@ header <- dashboardHeader(title = "Animal Movement- Hidden Markov Models", title
 ##
 
 ## Set up the side bar contents
-sidebar <- dashboardSidebar(fileInput(inputId = "filedata",
-                                      label = "Upload data in Movebank format (.csv)",
-                                      accept = c(".csv")),
-                            selectInput("BirdSelect", "Select Animal ID", c("Select file first")),
-                            selectInput("NoStates", "Number of states for Hidden markov model", choices = c(3, 2)),
-                            actionButton("HMMFitBut", "Fit HMM"),
-                            sidebarMenu(menuItem("Data Visualisation", icon = icon("th"), tabName = "DataVis"),
-                                        menuItem("HMM- output", icon = icon("th"), tabName = "HMMOut"),
-                                        menuItem("HMM- partial residuals", icon = icon("th"), tabName = "ModChecks"),
-                                        menuItem("HMM- starting parameters", icon = icon("th"), tabName = "Params",
-                                                 sliderInput("StepMean1", "State 1- Mean Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.02),
-                                                 sliderInput("StepSD1", "State 1- Standard Deviation Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.02),
-                                                 sliderInput("StepMean2", "State 2- Mean Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.1),
-                                                 sliderInput("StepSD2", "State 2- Standard Deviation Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.1),
-                                                 sliderInput("StepMean3", "State 3- Mean Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.3),
-                                                 sliderInput("StepSD3", "State 3- Standard Deviation Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.3),
-                                                 sliderInput("AngleMean1", "State 1- Turning Angle Concentration", min = 0.01, max = 5, step =0.05, value = 0.01),
-                                                 sliderInput("AngleMean2", "State 2- Turning Angle Concentration", min = 0.01, max = 5, step =0.05, value = 0.1),
-                                                 sliderInput("AngleMean3", "State 3- Turning Angle Concentration", min = 0.01, max = 5, step =0.05, value = 3)))
-                            )
+sidebar <- dashboardSidebar(sidebarMenu(menuItem("Data Visualisation", icon = icon("th"), tabName = "DataVis"),
+                                        menuItem("HMM- Run Model", icon = icon("th"), tabName = "HMMOut"),
+                                        menuItem("HMM- Model Checks", icon = icon("th"), tabName = "ModChecks")
+                            ))
 
 
 ##
@@ -94,18 +79,37 @@ sidebar <- dashboardSidebar(fileInput(inputId = "filedata",
 ## Set up the dashboard contents 
 body <- dashboardBody(
   tabItems(tabItem(tabName = "DataVis", # Boxes need to be put in a row (or column)
-                   fluidRow(infoBoxOutput("IndividualID"),infoBoxOutput("NoLocations"),infoBoxOutput("DateRange")),
+                   fluidRow(box(selectInput("BirdSelect", label = "Select Animal ID", choices = c(unique(testtracks$individual.local.identifier))),
+                                width = 3, title = "Select Individual", solidHeader = TRUE, status = "primary")),
+                   fluidRow(box(width = 12, title = "Summary of Individual", solidHeader = FALSE, status = "primary",
+                                infoBoxOutput("IndividualID"),infoBoxOutput("NoLocations"),infoBoxOutput("DateRange"))),
                    fluidRow(box(leafletOutput("leafletmap"), width = 12, title = "Interactive map of locations", solidHeader = TRUE, status = "primary"))),
-           tabItem(tabName = "HMMOut", 
+           
+           tabItem(tabName = "HMMOut",
+                   fluidRow(box(width = 12, title = "Parameter choices for HMM", solidHeader = TRUE, status = "primary",
+                                fluidRow(column(width = 3, selectInput("NoStates", "Number of states for Hidden markov model", choices = c(3, 2)))),
+                                fluidRow(column(width = 4, sliderInput("StepMean1", "State 1- Mean Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.02)),
+                                         column(width = 4, sliderInput("StepSD1", "State 1- Standard Deviation Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.02)),
+                                         column(width = 4, sliderInput("AngleMean1", "State 1- Turning Angle Concentration", min = 0.01, max = 5, step =0.05, value = 0.01))),
+                                fluidRow(column(width = 4, sliderInput("StepMean2", "State 2- Mean Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.1)),
+                                         column(width = 4, sliderInput("StepSD2", "State 2- Standard Deviation Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.1)),
+                                         column(width = 4, sliderInput("AngleMean2", "State 2- Turning Angle Concentration", min = 0.01, max = 5, step =0.05, value = 0.1))),
+                                fluidRow(column(width = 4, sliderInput("StepMean3", "State 3- Mean Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.3)),
+                                         column(width = 4, sliderInput("StepSD3", "State 3- Standard Deviation Step Length", min = 0.01, max = 0.5, step =0.01, value = 0.3)),
+                                         column(width = 4, sliderInput("AngleMean3", "State 3- Turning Angle Concentration", min = 0.01, max = 5, step =0.05, value = 3))),
+                                fluidRow(column(width = 1, offset = 11, actionButton("HMMFitBut", "Fit HMM"))))),
                    fluidRow(box(leafletOutput("HMM_Decodedmap"), width = 12, title = "Interactive map of HMM states (Run HMM to visualise States)", 
                                                   solidHeader = TRUE, status = "success")),
-                   fluidRow(box(plotOutput("HMM_SLdist"), width = 4, title = "Step length distributions by state", solidHeader = TRUE, status = "warning"),
-                            box(plotOutput("HMM_Anglesdist"), width = 4, title = "Turning angle distributions by state", solidHeader = TRUE, status = "warning"),
-                            box(plotOutput("HMM_simpdecoded"), width = 4, title = "Simple plot of HMM states", solidHeader = TRUE, status = "warning"))),
+                   fluidRow(box(plotOutput("HMM_SLdist"), width = 4, title = "Step length distributions by state", solidHeader = TRUE, status = "primary"),
+                            box(plotOutput("HMM_Anglesdist"), width = 4, title = "Turning angle distributions by state", solidHeader = TRUE, status = "primary"),
+                            box(plotOutput("HMM_simpdecoded"), width = 4, title = "Simple plot of HMM states", solidHeader = TRUE, status = "primary"))),
+           
            tabItem(tabName = "ModChecks",
                    fluidRow(box(plotOutput("HMM_ModChecks"), width = 12, title = "HMM model checks (Run HMM to visualise plots)", solidHeader = TRUE, status = "danger"))))
   
 )
+
+
 
 
 ##
@@ -131,10 +135,13 @@ server <- function(input, output, session) {
   ##
   
   ## This reads in my csv file, the UI allows me to initially just find the path for my file
-  data <- reactive({
-    req(input$filedata)
-    read.csv(input$filedata$datapath)
-  })
+  # data <- reactive({
+  #   
+  #   req(input$filedata)
+  #   read.csv(input$filedata$datapath)
+  #   
+  # })
+  
   
   
   ##
@@ -142,15 +149,16 @@ server <- function(input, output, session) {
   ##
   
   ## This updates the select Input drop down options based off of the file that I read in
-  observe({
-    
-    x <- data()
-    
-    # I need to identify which select input i want to update and then tell it what the new choices should be
-    updateSelectInput(session, "BirdSelect",
-                      choices = unique(x$individual.local.identifier)
-    )
-  })
+  # observe({
+  #   
+  #   x <- data()
+  #   
+  #   # I need to identify which select input i want to update and then tell it what the new choices should be
+  #   updateSelectInput(session, "BirdSelect",
+  #                     choices = unique(x$individual.local.identifier)
+  #   )
+  # })
+
   
   
   ##
@@ -167,8 +175,8 @@ server <- function(input, output, session) {
   ## Create an Info box with the the number of GPS locations
   output$NoLocations <- renderInfoBox({
     
-    data <- data()
-    data <- as.data.frame(data)
+    # data <- data()
+    data <- as.data.frame(testtracks)
     ## filter out the individuals i want based of the drop down selected 
     data_sub <- dplyr::filter(data, data$individual.local.identifier == input$BirdSelect)
     
@@ -180,8 +188,8 @@ server <- function(input, output, session) {
   ## Create an Info box with the date rnage of the GP\S data for that individual
   output$DateRange <- renderInfoBox({
     
-    data <- data()
-    data <- as.data.frame(data)
+    # data <- data()
+    data <- as.data.frame(testtracks)
     ## filter out the individuals i want based of the drop down selected 
     data_sub <- dplyr::filter(data, data$individual.local.identifier == input$BirdSelect)
     data_sub$timestamp <- lubridate::ymd_hms(data_sub$timestamp)
@@ -199,8 +207,8 @@ server <- function(input, output, session) {
   ## now render the leaflet map
   output$leafletmap <- renderLeaflet({
     
-    data <- data()
-    data <- as.data.frame(data)
+    # data <- data()
+    data <- as.data.frame(testtracks)
     data_sub <- dplyr::filter(data, data$individual.local.identifier == input$BirdSelect)
     
     ## leaflet map with the default base map and the locations
@@ -221,8 +229,8 @@ server <- function(input, output, session) {
   ## The main bit of code inside the function is only run if the HMMFitBut is pressed
   HMMOutput <- eventReactive(input$HMMFitBut, {
     
-    data <- data()
-    data <- as.data.frame(data)
+    # data <- data()
+    data <- as.data.frame(testtracks)
     data_sub <- dplyr::filter(data, data$individual.local.identifier == input$BirdSelect)
     
     HMMforShiny(data=data_sub, SL_mean1=input$StepMean1, SL_sd1=input$StepSD1, SL_mean2=input$StepMean2, SL_sd2=input$StepSD2,
@@ -231,6 +239,7 @@ server <- function(input, output, session) {
     
     
   })
+
   
   
   ##
@@ -240,12 +249,12 @@ server <- function(input, output, session) {
   ## now render the output of the HMM model in a leaflet map, the GPS points are colored by the HMM states
   output$HMM_Decodedmap <- renderLeaflet({
 
-    data <- data()
-    data <- as.data.frame(data)
+    # data <- data()
+    data <- as.data.frame(testtracks)
     data_sub <- dplyr::filter(data, data$individual.local.identifier == input$BirdSelect)
 
       
-      ## extract the decoded sattes and lat/longs from the list
+      ## extract the decoded states and lat/longs from the list
       HMMMod <- HMMOutput()
       HMMMod <- HMMMod[["Decoded"]]
       
