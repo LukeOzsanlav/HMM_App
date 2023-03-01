@@ -11,7 +11,7 @@ Alternaitvely run the follwing code in R to launch the app locally
 ```{r}
 if (!require("shiny")) install.packages("shiny")
 library(shiny)
-runGitHub("ExMoveApp", username = "LukeOzsanlav",
+runGitHub("HMM_App", username = "LukeOzsanlav",
           ref = "master", subdir = "app")
 ```
 
