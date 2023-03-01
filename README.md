@@ -6,6 +6,15 @@
 ## Link to app 🔗
 [**Click here**](https://lukeozsanlav.shinyapps.io/hmm_explorer/) to access the app in your web browser
 
+Alternaitvely run the follwing code in R to launch the app locally
+
+```{r}
+if (!require("shiny")) install.packages("shiny")
+library(shiny)
+runGitHub("ExMoveApp", username = "LukeOzsanlav",
+          ref = "master", subdir = "app")
+```
+
 <br/>
 
 ## App Details
